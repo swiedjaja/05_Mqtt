@@ -9,6 +9,10 @@ cara test program:
    mosquitto_sub -h broker.emqx.io -t "esp32_test/pub"
 - jalankan di CMD 2 mqtt client untuk publish message ke  ESP
    mosquitto_pub -h broker.emqx.io -t "esp32_test/sub" -m "Hello"
+
+   esp32_DA286F24/cmd/led/1 : 0|1
+   esp32_DA286F24/data/temp  
+   esp32_DA286F24/data/humidity  
 */
 #include <Arduino.h>
 #include <Ticker.h>
@@ -16,6 +20,9 @@ cara test program:
 #if defined(ESP32)  
   #include <WiFi.h>
 #endif  
+#if defined(ESP8266)
+  #include <ESP8266WiFi.h>
+#endif
 #include "device.h"
 
 const char* ssid = "Steff-IoT";
@@ -39,10 +46,8 @@ void onPublishMessage();
 void setup() {
   Serial.begin(115200);
   delay(100);
-  pinMode(LED_BUILTIN, OUTPUT);
-#if defined(ESP32)  
+  // pinMode(LED_BUILTIN, OUTPUT);
   Serial.printf("Free Memory: %d\n", ESP.getFreeHeap());
-#endif 
   WifiConnect();
   mqttConnect();
   timerPublish.attach_ms(3000, onPublishMessage);
@@ -71,6 +76,10 @@ boolean mqttConnect() {
 #if defined(ESP32)  
   sprintf(g_szDeviceId, "esp32_%08X",(uint32_t)ESP.getEfuseMac());
 #endif  
+#if defined(ESP8266)  
+  sprintf(g_szDeviceId, "esp8266_%08X",(uint32_t)ESP.getChipId());
+#endif  
+
   mqtt.setServer(MQTT_BROKER, 1883);
   mqtt.setCallback(mqttCallback);
   Serial.printf("Connecting to %s clientId: %s\n", MQTT_BROKER, g_szDeviceId);
