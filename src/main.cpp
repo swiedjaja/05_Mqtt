@@ -4,7 +4,7 @@ Test MQTT:
 - publish message ke topik "esp32_test/pub"
 
 cara test program:
-- Install mosquitto di Windows/Linux
+- Install mosquitto di Windows/Linux: download from: https://mosquitto.org/files/binary/win64/mosquitto-2.0.14-install-windows-x64.exe
 - jalankan di CMD 1 mqtt client untuk subsribe ke topic yg di publish oleh ESP
    mosquitto_sub -h broker.emqx.io -t "esp32_test/pub"
 - jalankan di CMD 2 mqtt client untuk publish message ke  ESP
@@ -23,8 +23,8 @@ const char* password = "steffiot123";
 
 #define MQTT_BROKER  "broker.emqx.io"
 // #define MQTT_BROKER  "52.32.182.17" 
-#define MQTT_TOPIC_PUBLISH   "esp32_test/pub"
-#define MQTT_TOPIC_SUBSCRIBE "esp32_test/sub"
+#define MQTT_TOPIC_PUBLISH   "esp32_test/data"
+#define MQTT_TOPIC_SUBSCRIBE "esp32_test/cmd"  
 WiFiClient wifiClient;
 PubSubClient  mqtt(wifiClient);
 
@@ -32,6 +32,25 @@ Ticker timerPublish;
 int nMsgCount=0;
 
 char g_szDeviceId[30];
+void WifiConnect();
+boolean mqttConnect();
+void onPublishMessage();
+
+void setup() {
+  Serial.begin(115200);
+  delay(100);
+  pinMode(LED_BUILTIN, OUTPUT);
+#if defined(ESP32)  
+  Serial.printf("Free Memory: %d\n", ESP.getFreeHeap());
+#endif 
+  WifiConnect();
+  mqttConnect();
+  timerPublish.attach_ms(3000, onPublishMessage);
+}
+
+void loop() {
+    mqtt.loop();
+}
 
 void mqttCallback(char* topic, byte* payload, unsigned int len) {
   Serial.print("Message arrived [");
@@ -86,18 +105,4 @@ void WifiConnect()
   Serial.println(WiFi.localIP());
   Serial.printf("RSSI: %d\n", WiFi.RSSI());
 }
-void setup() {
-  Serial.begin(115200);
-  delay(100);
-  pinMode(LED_BUILTIN, OUTPUT);
-#if defined(ESP32)  
-  Serial.printf("Free Memory: %d\n", ESP.getFreeHeap());
-#endif 
-  WifiConnect();
-  mqttConnect();
-  timerPublish.attach_ms(3000, onPublishMessage);
-}
 
-void loop() {
-    mqtt.loop();
-}
