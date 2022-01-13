@@ -1,14 +1,14 @@
 /*
 Test MQTT:
-- subcribe ke topik "esp32_test/sub
-- publish message ke topik "esp32_test/pub"
+- subcribe ke topik "esp32_test/data
+- publish message ke topik "esp32_test/cmd"
 
 cara test program:
 - Install mosquitto di Windows/Linux: download from: https://mosquitto.org/files/binary/win64/mosquitto-2.0.14-install-windows-x64.exe
 - jalankan di CMD 1 mqtt client untuk subsribe ke topic yg di publish oleh ESP
-   mosquitto_sub -h broker.emqx.io -t "esp32_test/pub"
+   mosquitto_sub -h broker.emqx.io -t "esp32_test/data"
 - jalankan di CMD 2 mqtt client untuk publish message ke  ESP
-   mosquitto_pub -h broker.emqx.io -t "esp32_test/sub" -m "Hello"
+   mosquitto_pub -h broker.emqx.io -t "esp32_test/cmd" -m "Hello"
 
    esp32_DA286F24/cmd/led/1 : 0|1
    esp32_DA286F24/data/temp  
